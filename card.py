@@ -145,7 +145,22 @@ def make_weather_gif(forecast):
         for x1,x2,label2,value,kind2 in cards:
             panel(base,(x1,1155,x2,1355),125,30); d=ImageDraw.Draw(base)
             metric_icon(d,x1+45,1200,kind2)
-            d.text((x1+24,1245),label2,font=font(23),fill="#D9EDFA"); d.text((x1+24,1282),value,font=font(40,True),fill="white")
+            d.text((x1+24,1245),label2,font=font(23),fill="#D9EDFA")
+            if kind2 == "wind":
+                # Keep both edges clear, including on Linux's wider DejaVu font.
+                number = str(forecast['wind'])
+                size = 40
+                while True:
+                    number_font, unit_font = font(size,True), font(round(size*.6))
+                    number_width = d.textlength(number,font=number_font)
+                    width = number_width + 8 + d.textlength("km/h",font=unit_font)
+                    if width <= x2-x1-48 or size <= 12:
+                        break
+                    size -= 1
+                d.text((x1+24,1320),number,font=number_font,fill="white",anchor="ls")
+                d.text((x1+24+number_width+8,1320),"km/h",font=unit_font,fill="#D9EDFA",anchor="ls")
+            else:
+                d.text((x1+24,1282),value,font=font(40,True),fill="white")
         # The bottom row follows the native reference: one shared sun-times card and one visibility card.
         panel(base,(30,1380,560,1518),125,30); panel(base,(575,1380,870,1518),125,30); d=ImageDraw.Draw(base)
         metric_icon(d,76,1440,"sunrise"); d.text((122,1410),"Sunrise",font=font(23),fill="#D9EDFA"); d.text((122,1452),forecast["sunrise"],font=font(35,True),fill="white")
