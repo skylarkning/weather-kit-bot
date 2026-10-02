@@ -15,7 +15,7 @@ from weather import WEATHER_URL, forecast_params, forecast_from_payload
 
 def webhook_payload(forecast, filename):
     return {
-        'username':'Mozilla PEY Weather',
+        'username':'Weather Kit',
         'allowed_mentions':{'parse':[]},
         'attachments':[{'id':0,'filename':filename}],
         'embeds':[{
