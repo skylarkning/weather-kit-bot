@@ -1,0 +1,33 @@
+name: Validate Weather Bot
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu-core
+          python -m pip install -r requirements-actions.txt
+      - name: Test webhook payload without sending
+        run: python -m unittest test_send_once.py
+      - name: Fetch live forecast and render without sending
+        run: python send_once.py --dry-run
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weather-validation-preview
+          path: artifacts/*.gif
+          retention-days: 7
