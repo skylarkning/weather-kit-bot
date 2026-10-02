@@ -19,7 +19,7 @@ def webhook_payload(forecast, filename):
         'allowed_mentions':{'parse':[]},
         'attachments':[{'id':0,'filename':filename}],
         'embeds':[{
-            'title':'Mozilla PEY · Toronto weather',
+            'title':"Toronto's Weather Today",
             'description':f"{forecast['description']} · High {forecast['high']}°C · Low {forecast['low']}°C",
             'color':0xFF7139,
             'image':{'url':f'attachment://{filename}'},
