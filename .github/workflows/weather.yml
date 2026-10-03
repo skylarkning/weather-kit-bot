@@ -2,12 +2,13 @@ name: Toronto Weather
 
 on:
   schedule:
-    - cron: '0 7 * * *'
+    - cron: '0,10,25 7 * * *'
       timezone: America/Toronto
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: toronto-weather
@@ -19,17 +20,25 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Check daily delivery
+        id: daily
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 check_daily_send.py
       - uses: actions/setup-python@v5
+        if: steps.daily.outputs.send == 'true'
         with:
           python-version: '3.14'
           cache: pip
           cache-dependency-path: requirements-actions.txt
       - name: Install fonts and dependencies
+        if: steps.daily.outputs.send == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y fonts-dejavu-core
           python -m pip install -r requirements-actions.txt
       - name: Generate and send weather card
+        if: steps.daily.outputs.send == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python send_once.py
