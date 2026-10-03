@@ -5,6 +5,12 @@ on:
     - cron: '0,10,25 7 * * *'
       timezone: America/Toronto
   workflow_dispatch:
+    inputs:
+      force_send:
+        description: 'Force send even if already delivered today (may create a duplicate)'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -24,7 +30,14 @@ jobs:
         id: daily
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 check_daily_send.py
+          FORCE_SEND: ${{ github.event_name == 'workflow_dispatch' && inputs.force_send }}
+        run: |
+          if [ "$FORCE_SEND" = "true" ]; then
+            echo 'send=true' >> "$GITHUB_OUTPUT"
+            echo 'Manual force send: bypassing daily deduplication.'
+          else
+            python3 check_daily_send.py
+          fi
       - uses: actions/setup-python@v5
         if: steps.daily.outputs.send == 'true'
         with:
