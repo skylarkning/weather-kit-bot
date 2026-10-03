@@ -23,7 +23,7 @@ jobs:
           sudo apt-get install -y fonts-dejavu-core
           python -m pip install -r requirements-actions.txt
       - name: Test webhook payload without sending
-        run: python -m unittest test_send_once.py
+        run: python -m unittest discover
       - name: Fetch live forecast and render without sending
         run: python send_once.py --dry-run
       - uses: actions/upload-artifact@v4

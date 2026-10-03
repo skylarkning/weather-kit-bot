@@ -20,10 +20,11 @@ def webhook_payload(forecast, filename):
         'attachments':[{'id':0,'filename':filename}],
         'embeds':[{
             'title':"Toronto's Weather Today",
-            'description':f"{forecast['description']} · High {forecast['high']}°C · Low {forecast['low']}°C",
+            'description':f"{forecast['description']} · High {forecast['high']}°C · Low {forecast['low']}°C" +
+                ("\n" + " · ".join(forecast['weather_notes']) if forecast.get('weather_notes') else ""),
             'color':0xFF7139,
             'image':{'url':f'attachment://{filename}'},
-            'footer':{'text':'Forecast: Open-Meteo · Daily at 7:00 AM Toronto time'},
+            'footer':{'text':'Forecast: Open-Meteo · Daytime summary 7am–7pm · Toronto time'},
         }],
     }
 
