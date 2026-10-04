@@ -2,8 +2,9 @@ name: Toronto Weather
 
 on:
   schedule:
-    - cron: '0,10,25 7 * * *'
-      timezone: America/Toronto
+    # UTC: 11:00 is 07:00 EDT; 12:00 is 07:00 EST.
+    # The local-time guard below skips the other hour and allows delayed runs.
+    - cron: '0,10,25,40 11,12 * * *'
   workflow_dispatch:
     inputs:
       force_send:

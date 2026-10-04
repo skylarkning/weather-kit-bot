@@ -10,6 +10,11 @@ def api(path):
     return json.loads(subprocess.check_output(['gh', 'api', path], text=True))
 
 
+def in_delivery_window(now):
+    local = now.astimezone(ZoneInfo('America/Toronto'))
+    return 7 <= local.hour < 10
+
+
 def already_sent(runs, today, current_run, jobs_for):
     for run in runs:
         if str(run['id']) == str(current_run):
@@ -25,10 +30,17 @@ def already_sent(runs, today, current_run, jobs_for):
 
 if __name__ == '__main__':
     repo = os.environ['GITHUB_REPOSITORY']
-    today = datetime.now(ZoneInfo('America/Toronto')).date()
-    runs = api(f'repos/{repo}/actions/workflows/weather.yml/runs?per_page=100&created={today}')['workflow_runs']
-    skip = already_sent(runs, today, os.environ['GITHUB_RUN_ID'],
-                        lambda run: api(f'repos/{repo}/actions/runs/{run}/jobs?per_page=100')['jobs'])
+    now = datetime.now(ZoneInfo('America/Toronto'))
+    today = now.date()
+    outside = os.environ.get('GITHUB_EVENT_NAME') == 'schedule' and not in_delivery_window(now)
+    if outside:
+        skip = True
+        print('Outside Toronto 07:00–10:00 delivery window; skipping.')
+    else:
+        runs = api(f'repos/{repo}/actions/workflows/weather.yml/runs?per_page=100&created={today}')['workflow_runs']
+        skip = already_sent(runs, today, os.environ['GITHUB_RUN_ID'],
+                            lambda run: api(f'repos/{repo}/actions/runs/{run}/jobs?per_page=100')['jobs'])
     with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
         output.write(f'send={str(not skip).lower()}\n')
-    print('Already sent today; skipping duplicate.' if skip else 'No confirmed delivery today; sending.')
+    if not outside:
+        print('Already sent today; skipping duplicate.' if skip else 'No confirmed delivery today; sending.')
