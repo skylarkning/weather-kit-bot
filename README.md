@@ -1,6 +1,6 @@
 # Mozilla PEY Toronto Weather — GitHub Actions
 
-An animated Toronto weather card featuring detailed weather artwork and a weather-aware Firefox fox. Runs once daily at **07:00 America/Toronto**, or manually from **Actions → Toronto Weather → Run workflow**. No always-on computer is needed. Daylight-saving time is handled by GitHub's native timezone scheduling.
+An animated Toronto weather card featuring detailed weather artwork and a weather-aware Firefox fox. Targets **07:00 America/Toronto**, with fallback attempts at :10, :25 and :40. UTC schedules at 11h and 12h cover EDT and EST; Python's America/Toronto time-window guard and daily delivery check prevent early or duplicate sends. GitHub may delay or drop scheduled runs, so exact-time delivery is not guaranteed. Manual sending is available from **Actions → Toronto Weather → Run workflow**, with an opt-in force-send checkbox. No always-on computer is needed.
 
 ## Deploy
 
